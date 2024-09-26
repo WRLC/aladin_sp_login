@@ -1,0 +1,19 @@
+aladin_sp_login.login:
+  title: Log in
+  menu_name: main
+  parent: main
+  weight: 100
+  route_name: aladin_sp_login.login
+
+aladin_sp_login.logout:
+  title: Log out
+  menu_name: main
+  parent: main
+  weight: 101
+  route_name: aladin_sp_login.logout
+
+aladin_sp_login.settings:
+  title: Aladin-SP Login
+  parent: user.admin_index
+  route_name: aladin_sp_login.settings
+  weight: 100

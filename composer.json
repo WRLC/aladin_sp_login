@@ -1,0 +1,10 @@
+{
+    "name": "wrlc/aladin_sp_login",
+    "description": "Create and login users via Aladin-SP SSO",
+    "type": "drupal-custom-module",
+    "require": {
+        "ext-memcached": "*",
+        "drupal/core": "^10.3 || ^11",
+        "composer/installers": "*"
+    }
+}

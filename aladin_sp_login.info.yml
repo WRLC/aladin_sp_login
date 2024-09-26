@@ -1,0 +1,9 @@
+name: 'Aladin-SP Login'
+type: module
+description: 'Create and login users via Aladin-SP SSO'
+package: Custom
+core_version_requirement: ^10
+
+dependencies:
+  - drupal:user
+  - restrict_ip:restrict_ip

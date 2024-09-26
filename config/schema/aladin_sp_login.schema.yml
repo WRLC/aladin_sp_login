@@ -1,0 +1,20 @@
+# Schema for the configuration files of the Aladin-SP Login module.
+aladin_sp_login.settings:
+  type: config_object
+  label: 'Aladin-SP Login settings'
+  mapping:
+    service_slug:
+      type: string
+      label: 'Service Slug'
+    aladin_sp_url:
+      type: string
+      label: 'Aladin-SP URL'
+    memcached_server:
+      type: string
+      label: 'Memcached server address'
+    memcached_port:
+      type: integer
+      label: 'Memcached server port'
+    memcached_cookie_prefix:
+      type: string
+      label: 'Memcached cookie prefix'

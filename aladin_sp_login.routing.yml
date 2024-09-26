@@ -1,0 +1,31 @@
+aladin_sp_login.login:
+  path: '/aladin'
+  defaults:
+    _controller: '\Drupal\aladin_sp_login\Controller\AladinSpLoginController'
+    _title: 'Aladin SP Login'
+  requirements:
+    _access: 'TRUE'
+
+aladin_sp_login.aladin_sp_login_callback:
+  path: '/aladin/login'
+  defaults:
+    _title: 'Aladin Sp Login Callback'
+    _controller: '\Drupal\aladin_sp_login\Controller\AladinSpLoginCallbackController'
+  requirements:
+    _access: 'TRUE'
+
+aladin_sp_login.logout:
+  path: '/aladin/logout'
+  defaults:
+    _controller: '\Drupal\aladin_sp_login\Controller\AladinSpLoginLogoutController'
+    _title: 'Aladin SP Logout'
+  requirements:
+    _access: 'TRUE'
+
+aladin_sp_login.settings:
+  path: '/admin/config/system/settings'
+  defaults:
+    _title: 'Aladin-SP Login'
+    _form: 'Drupal\aladin_sp_login\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

@@ -1,0 +1,152 @@
+<?php
+
+/**
+ * @file
+ * Contains aladin_sp_login.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
+/**
+ * Disables some account fields for non-administrators.
+ *
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ *
+ * @return void
+ */
+function aladin_sp_login_form_user_form_alter(&$form, &$form_state, $form_id): void {
+  # If the user is not an administrator, disable some account fields.
+  if (!Drupal::currentUser()->hasPermission('administer users')) {
+    $form['account']['#disabled'] = TRUE;  # Disable the entire account fieldset.
+    $form['account']['current_pass']['#access'] = FALSE;  # Hide the current password field.
+    $form['account']['pass']['#access'] = FALSE;  # Hide the password field.
+    $form['field_university']['#disabled'] = TRUE;  # Disable the university field.
+  }
+}
+
+/**
+ * Manipulate the menu items by:
+ * - Removing the aladin_sp_login.login link if the user is authenticated.
+ * - Removing the aladin_sp_login.logout link if the user is anonymous.
+ * - Always removing the user.login link. (Replaced by aladin_sp_login.login)
+ * - Always emoving the user.logout link.  (Replaced by aladin_sp_login.logout)
+ *
+ * Implements hook_preprocess_menu().
+ *
+ * @param $variables
+ *
+ * @return void
+ */
+function aladin_sp_login_preprocess_menu(&$variables): void {
+  # If the user is authenticated
+  if (in_array('authenticated', Drupal::currentUser()->getRoles())) {
+    # remove the aladin_sp_login.login link from the menu.
+    if (isset($variables['items']['aladin_sp_login.login'])) {
+      unset($variables['items']['aladin_sp_login.login']);
+    }
+  }
+  # If the user is anonymous, remove the aladin_sp_login.logout link from the menu.
+  elseif (in_array('anonymous', Drupal::currentUser()->getRoles())) {
+    if (isset($variables['items']['aladin_sp_login.logout'])) {
+      unset($variables['items']['aladin_sp_login.logout']);
+    }
+  }
+
+  # Always remove the user.login link from the menu.
+  if (isset($variables['items']['user.login'])) {
+    unset($variables['items']['user.login']);
+  }
+
+  # Always remove the user.logout link from the menu.
+  if (isset($variables['items']['user.logout'])) {
+    unset($variables['items']['user.logout']);
+  }
+
+}
+
+/**
+ * Alters the Restrict IP Access module's access denied page to display a branded message that access is restricted to on-campus IP addresses and a link to Aladin-SP login.
+ *
+ * Implements hook_restrict_ip_access_denied_page_alter().
+ *
+ * @param array $page
+ *
+ * @return void
+ */
+function aladin_sp_login_restrict_ip_access_denied_page_alter(array &$page): void {
+  if(Drupal::currentUser()->isAnonymous()) {
+    $aladin_sp_url = Drupal::config('aladin_sp_login.settings')->get('aladin_sp_url');
+    $slug = Drupal::config('aladin_sp_login.settings')->get('service_slug');
+    if(isset($page['access_denied'])) {
+      $title = Drupal::config('system.site')->get('name');
+      $logo = theme_get_setting('logo.url');
+      $page['access_denied']['#markup'] = t('
+        <style>body {margin-top: 0 !important; padding-top: 0 !important;}</style>
+        <h1 class="bg-primary" style="margin-top: 0; padding: 10px 20px;"><img src="' . $logo . '" alt="' . $title . ' Logo" /> ' . $title . '</h1>
+        <div style="padding: 0 20px">
+          <p>Access to the <strong>' .$title . '</strong> by anonymous users is restricted to on-campus IP addresses.</p>
+          <p>Please sign in.</p>
+        </div>
+      ');
+    }
+    if(isset($page['login_link'])) {
+      $page['login_link']['#markup'] = t('<a href="/aladin" class="btn btn-primary" style="margin-left: 20px">Sign In</a>');
+    }
+  } else {
+    $profile = Url::fromRoute('user.page')->toString();
+    $page['access_denied']['#markup'] = t('
+      <script>
+        window.location.replace("' . $profile . '")
+      </script>
+    ');
+  }
+}
+
+/**
+ * Add regions to be whitelisted even when the user has been denied access.
+ *
+ * Implements hook_restrict_ip_whitelisted_regions().
+ *
+ * (Doesn't appear to work as expected)
+ *
+ * @return array
+ */
+function aladin_sp_login_restrict_ip_whitelisted_regions(): array {
+  return ['navigation', 'navigation_collapsible', 'header', 'highlighted', 'help', 'footer'];
+}
+
+/**
+ * Redirects the user to the user login page after a password reset request.
+ *
+ * Implements hook_form_alter().
+ *
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $form_id
+ *
+ * @return void
+ */
+function aladin_sp_login_form_alter(&$form, FormStateInterface $form_state, $form_id): void {
+  if ($form_id == 'user_pass') {
+    $form['#submit'][] = 'MY_MODULE_CUSTOM_REDIRECT';
+  }
+}
+
+/**
+ * Custom submit function to redirect to the user login page
+ *
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *
+ * @return void
+ */
+function MY_MODULE_CUSTOM_REDIRECT(&$form, FormStateInterface $form_state): void {
+  //Redirect to node/1
+  $form_state->setRedirect('user.login');
+}
