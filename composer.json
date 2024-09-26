@@ -5,6 +5,7 @@
     "require": {
         "ext-memcached": "*",
         "drupal/core": "^10.3 || ^11",
+        "drupal/restrict_ip": "^1.0",
         "composer/installers": "*"
     }
 }
